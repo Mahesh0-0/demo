@@ -373,3 +373,44 @@ function renderTodos() {
 
 document.getElementById('add-button').addEventListener('click', addTodo);
 
+  
+ class TollBooth {
+    private car: number;
+    private cash: number;
+    constructor() {
+        this.car = 0;
+        this.cash = 0;
+    }
+
+    public pay(): void {
+        this.car++;
+        this.cash += 50;
+    }
+
+    public notpay(): void {
+        this.car++;
+    }
+
+    public display(): void {
+        console.log(`Total cars: ${this.car}`);
+        console.log(`Total cash collected: ${this.cash} Rupees`);
+    }
+}
+function sample(inputs: string[]): void {
+    const tollBooth = new TollBooth();
+
+    inputs.forEach((input) => {
+        if (input === 'p') {
+            tollBooth.pay();
+        } else if (input === 'n') {
+            tollBooth.notpay();
+        }
+    });
+
+    tollBooth.display();
+}
+
+
+sample(['p', 'p', 'n', 'p', 'n']);
+sample(['p', 'p', 'n', 'p', 'p', 'n', 'p']);
+sample(['p', 'p', 'n', 'p', 'n', 'p', 'p', 'p', 'n']);

@@ -414,3 +414,53 @@ function sample(inputs: string[]): void {
 sample(['p', 'p', 'n', 'p', 'n']);
 sample(['p', 'p', 'n', 'p', 'p', 'n', 'p']);
 sample(['p', 'p', 'n', 'p', 'n', 'p', 'p', 'p', 'n']);
+  
+  
+  
+  
+  
+  
+  class Person {
+    name: string;
+    color: string;
+    no_of_eyes: number;
+
+    constructor(name: string, color: string, eyes: number) {
+        this.name = name;
+        this.color = color;
+        this.no_of_eyes = eyes;
+    }
+}
+
+class Actor extends Person {
+    debut_year: number;
+    constructor(name: string, color: string, eyes: number, debut: number) {
+        super(name, color, eyes);
+        this.debut_year = debut;
+    }
+
+    toString(): void {
+        let detail: string = "The person " + this.name + "is an Actor. He is " + this.color + " in color, has " + this.no_of_eyes + " eyes and debut in " + this.debut_year;
+        console.log(detail);
+    }
+}
+
+class Actress extends Person {
+    debut_year: number;
+
+    constructor(name: string, color: string, eyes: number, debut: number) {
+        super(name, color, eyes);
+        this.debut_year = debut;
+    }
+
+    toString(): void {
+        let detail: string = "The person " + this.name + "is an Actor. He is " + this.color + " in color, has " + this.no_of_eyes + " eyes and debut in " + this.debut_year;
+        console.log(detail);
+    }
+}
+
+let p1 = new Actor("Amitabh", "Brown", 2, 1965);
+let p2 = new Actress("Hema", "White", 2, 1975);
+p1.toString();
+p2.toString();
+  

@@ -298,3 +298,78 @@ acc.process(trans2); // Filter out zero-valued transaction
 acc.process(trans3); // Process non-zero transaction
 
 console.log(`Number of filtered transactions: ${acc.filtered()}`);
+  
+  
+  
+  
+  
+  interface Todo {
+    id: number;
+    text: string;
+    completed: boolean;
+}
+
+const todos: Todo[] = [];
+
+function addTodo() {
+    const input = document.getElementById('todo-input') as HTMLInputElement;
+    const text = input.value.trim();
+
+    if (text !== '') {
+        const newTodo: Todo = {
+            id: todos.length + 1,
+            text: text,
+            completed: false,
+        };
+
+        todos.push(newTodo);
+        input.value = '';
+        renderTodos();
+    }
+}
+
+function toggleTodoStatus(id: number) {
+    const todo = todos.find(todo => todo.id === id);
+
+    if (todo) {
+        todo.completed = !todo.completed;
+        renderTodos();
+    }
+}
+
+function removeTodo(id: number) {
+    const index = todos.findIndex(todo => todo.id === id);
+
+    if (index !== -1) {
+        todos.splice(index, 1);
+        renderTodos();
+    }
+}
+
+function renderTodos() {
+    const todoList = document.getElementById('todo-list');
+    todoList.innerHTML = '';
+
+    todos.forEach(todo => {
+        const li = document.createElement('li');
+        const span = document.createElement('span');
+        const removeBtn = document.createElement('button');
+
+        span.textContent = todo.text;
+        span.addEventListener('click', () => toggleTodoStatus(todo.id));
+
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', () => removeTodo(todo.id));
+
+        li.appendChild(span);
+        li.appendChild(removeBtn);
+        todoList.appendChild(li);
+
+        if (todo.completed) {
+            span.classList.add('completed');
+        }
+    });
+}
+
+document.getElementById('add-button').addEventListener('click', addTodo);
+

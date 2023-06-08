@@ -732,3 +732,90 @@ app.listen(port,(err)=>{
         console.log("Server Started");
     }
 })
+ ==================================================================================================
+  <!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form method="POST" action="/login">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <button type="submit">Log In</button>
+  </form>
+</body>
+</html>
+
+  
+  const express = require('express');
+const session = require('express-session');
+
+const app = express();
+
+// Set up session middleware
+app.use(
+  session({
+    secret: 'your_secret_key',
+    resave: false,
+    saveUninitialized: false
+  })
+);
+
+// Mock user database
+const users = [
+  { id: 1, username: 'user123', password: 'password123' },
+  { id: 2, username: 'anotheruser', password: 'testpass' }
+];
+
+// Middleware
+const authMiddleware = (req, res, next) => {
+  if (req.path === '/dashboard' && !req.session.userid) {
+    return res.redirect('/login'); // Redirect to login page if user is not logged in
+  }
+  next();
+};
+
+// Apply middleware to endpoint
+app.use(authMiddleware);
+
+// Login route
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Find user in the mock database
+  const user = users.find(u => u.username === username && u.password === password);
+
+  if (!user) {
+    return res.send('Invalid credentials');
+  }
+
+  // Set session variables
+  req.session.userid = user.id;
+
+  res.send('Logged in successfully!');
+});
+
+// Dashboard route
+app.get('/dashboard', (req, res) => {
+  const userId = req.session.userid;
+
+  // Fetch user data from the database based on the userId
+
+  res.send(`Welcome to the dashboard, User ${userId}!`);
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  res.send('Logged out successfully!');
+});
+
+// Start the server
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+==========================================================

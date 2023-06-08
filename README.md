@@ -406,6 +406,45 @@ module.exports = route;
 
 </body>
 </html>
+  
+const express = require('express');
+const path = require('path');
+const multer=require('multer');
+// const upload=multer({dest:"uploads/"}) if we use this file gets corrupted
+const storage=multer.diskStorage({
+    destination:function(req,file,cb) {
+        return cb(null,'./uploads');
+    },
+    filename:function(req,file,cb){
+        return cb(null,`${Date.now()}-${file.originalname}`)
+    }
+});
+const upload=multer({storage})
+
+const app=express();
+app.use(express.static('public'));
+app.use(express.urlencoded({extended:false}))
+
+app.get('/',(req,res)=>{
+    // res.sendFile(path.resolve(__dirname,'./public/home.ejs'));
+    res.render(path.resolve(__dirname,"./public/home.ejs"));      
+})
+
+app.post('/upload',upload.single("profileImage"),(req,res)=>{
+    console.log(req.body);
+    console.log(req.file);
+    console.log(req.file.path);
+    res.redirect("/");
+})
+
+app.listen(3000,(err)=>{
+    if(err){
+        console.log(err);
+    }
+    else{
+        console.log("Server started successfully");
+    }
+})
 
 //update.ejs
 <!DOCTYPE html>

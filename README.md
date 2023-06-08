@@ -127,8 +127,360 @@ app.listen(3000, () => {
 
 ================================================================================================
 
+<---routes--userroutes.js>
+const express = require("express");
+const route = express.Router();
+route.use(express.urlencoded({extended:false}));
+route.use(express.json());
+
+const url = "mongodb+srv://u1161:u1161@cluster0.xgs5l6r.mongodb.net/?retryWrites=true&w=majority";
+
+const client=require("mongodb").MongoClient;
+let dbInstance;
+
+client.connect(url).then(async (database)=>{
+    console.log("Db connected");
+    dbInstance =  await database.db("Account").collection("User");
+}).catch((err)=>{
+    console.log("Error in connecting"+err);
+})
+
+async function read(obj,res){
+    let arr = await dbInstance.find(obj).toArray();
+    if(arr.length==0)
+    {
+        console.log("Not founded");
+        res.render("login",{msg:"Username Not found"});
+    }
+    else
+    {
+        console.log("Founded");
+        res.render("login",{msg:"Successfully Login"});
+    }
+}
+async function search(){
+    let res = await dbInstance.find({}).toArray();
+    console.log("Search compl");
+}
+async function insert(obj)
+{
+    let response = await dbInstance.insertOne(obj)
+    console.log("Data inserted"+response);
+}
+async function delte(obj)
+{
+    let res = await dbInstance.deleteMany(obj);
+    console.log("Delted");
+}
+
+async function update(obj)
+{
+    let res = await dbInstance.updateOne(
+        {
+            username:obj.username
+        },
+        {
+            $set:{pwd:obj.pwd}
+        }
+    );
+    console.log("Delted");
+}
 
 
+async function check(obj,res){
+    let arr = await dbInstance.find(obj).toArray();
+    if(arr.length==0)
+    {
+        insert(obj);
+        res.render("signup",{msg:"User created"});
+    }
+    else
+    {
+        console.log("User already present");
+        res.render("signup",{msg:"User already present"});
+    }
+}
+route.get("/act1",(req,res)=>{
+    console.log(req.query);
+    let obj = {};
+    obj.username = req.query.username;
+    obj.pwd = req.query.pwd;
+    console.log(obj);
+    read(obj,res);
+})
+
+route.get("/replace",(req,res)=>{
+    res.render("update");
+})
+
+
+route.get("/destroy",(req,res)=>{
+    res.render("delete");
+})
+
+route.get("/login",(req,res)=>{
+  console.log(req.query);
+    res.render("login",{msg:""});
+})
+
+
+route.get("/signup",(req,res)=>{
+  console.log(req.query);
+    res.render("signup",{msg:""});
+})
+route.post("/act2",(req,res)=>{
+    console.log(req.body);
+    let obj = {};
+    obj.username = req.body.username;
+    obj.pwd = req.body.pwd;
+    console.log(obj);
+    check(obj,res);
+})
+route.get("/delete",(req,res)=>{
+    let obj = {};
+    obj.username = req.query.username;
+    obj.pwd = req.query.pwd;
+    console.log(obj);
+    delte(obj);
+    res.end("User deleted");
+})
+route.get("/update",(req,res)=>{
+    let obj = {};
+    obj.username = req.query.username;
+    obj.pwd = req.query.pwd;
+    console.log(obj);
+    update(obj);
+    res.end("User updated");
+})
+module.exports = route;
+
+<-------views--------->
+//delete.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link href="delete.css" type="text/css" rel="stylesheet"> -->
+</head>
+<body>
+    <div id="title">
+        <h1>Delete Page</h1>
+    </div>
+
+    <div id="main">
+        <form action="/delete" method="get">
+            <!-- Username -->
+            <p>Username</p>
+            <input type="text" name="username" placeholder="Enter username">
+
+            <!-- Password -->
+            <p>Password</p>
+            <input type="password" name="pwd" placeholder="Enter password">
+
+            <!-- Submit -->
+            <p>
+                <input type="submit">
+            </p>
+            
+        </form>
+    </div>
+
+</body>
+</html>
+
+//home.ejs
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link href="style.css" type="text/css" rel="stylesheet"> -->
+</head>
+<body>
+    <div id="title">
+        <h1>Welcome to mongodb</h1>
+    </div>
+    
+
+    <div id="main">
+        <div id="left">
+            <a href="/login"><input type="button" value="Login" id="login"></a>
+        </div>
+
+        <div id="right">
+            <a href="/signup"><input type="button" value="Sign Up" id="signup"></a>
+        </div>
+
+        <div>
+        <a href="/destroy">Delete User</a>
+        </div>
+
+        <div>
+        <p>--------------</p>
+        </div>
+
+        <div>
+        <a href="/replace">Update User</a>
+        </div>
+    </div>
+</body>
+</html>
+
+//login.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link href="login.css" type="text/css" rel="stylesheet"> -->
+</head>
+<body>
+    <div id="title">
+        <h1>Login Page</h1>
+    </div>
+
+    <div id="main">
+        <form action="/act1" method="get">
+            <p>Username</p>
+            <input type="text" name="username" placeholder="Enter username">
+            <p>Password</p>
+            <input type="password" name="pwd" placeholder="Enter password">
+            <p>
+                <input type="submit">
+            </p>
+
+            <p>
+            <%=msg%>
+            </p>
+            
+        </form>
+    </div>
+
+</body>
+</html>
+
+//signup.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link href="signup.css" type="text/css" rel="stylesheet"> -->
+</head>
+<body>
+    <div id="title">
+        <h1>Sign Up Page</h1>
+    </div>
+
+    <div id="main">
+        <form action="/act2" method="post">
+            <!-- Username -->
+            <p>Username</p>
+            <input type="text" name="username" placeholder="Enter username">
+
+            <!-- Password -->
+            <p>Password</p>
+            <input type="password" name="pwd" placeholder="Enter Password">
+
+            <!-- Submit -->
+
+            <p>
+                <input type="submit">
+            </p>
+
+            <p>
+            <%=msg%>
+            </p>
+        </form>
+    </div>
+
+</body>
+</html>
+
+//update.ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- <link href="update.css" type="text/css" rel="stylesheet"> -->
+</head>
+<body>
+    <div id="title">
+        <h1>Update Page</h1>
+    </div>
+
+    <div id="main">
+        <form action="/update" method="get">
+            <p>Username</p>
+            <input type="text" name="username" placeholder="Enter username">
+            <p>New Password</p>
+            <input type="password" name="pwd" placeholder="New password">
+            <p>
+                <input type="submit">
+            </p>
+            
+        </form>
+    </div>
+
+</body>
+</html>
+
+//main.ejs;
+const port = 3000;
+
+const express = require("express");
+
+const app = express();
+
+// import userroute
+
+const userroute = require("./routes/userroutes.js");
+
+// using userroute
+
+app.use(userroute);
+
+// Setting ejs
+app.set("view engine","ejs");
+
+// Using body parser
+
+app.use(express.urlencoded({extended:false}));
+app.use(express.json());
+
+// Maintinag route
+
+app.get("/",(req,res)=>{
+    res.render("home");
+})
+
+// Handling static file of ejs
+app.use(express.static("views"));
+
+app.listen(port,(err)=>{
+    if(err){
+        console.log("Error in starting database");
+    }
+    else{
+        console.log("Sever started");
+    }
+})
+
+
+================================================================
 ->Routes
     //userroute.js
 const express = require("express");
@@ -341,7 +693,3 @@ app.listen(port,(err)=>{
         console.log("Server Started");
     }
 })
-
-
-
-
